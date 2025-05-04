@@ -30,9 +30,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             ☰
           </button>
 
-          <header className="w-full bg-white dark:bg-gray-800 shadow p-4 flex justify-end md:hidden">
+          {/* <header className="w-full bg-white dark:bg-gray-800 shadow p-4 flex justify-end md:hidden">
             <SignOutButton />
-          </header>
+          </header> */}
 
           <div className="p-6">
             <ProtectedRoute>{children}</ProtectedRoute>

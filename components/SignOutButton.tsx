@@ -5,7 +5,6 @@ import { useAuthContext } from "@/context/AuthContext";
 
 export default function SignOutButton() {
   const { user, loading } = useAuthContext();
-  if (loading) return <p className="text-gray-400">Loading...</p>;
   return user ? (
     <button
       onClick={() => signOut(auth)}

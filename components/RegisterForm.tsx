@@ -4,8 +4,12 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/config";
 import { User, Lock, Mail } from "lucide-react"; // Importing icons from react-lucid-icons
 import { useRouter } from "next/navigation";
+import { FirebaseError } from "firebase/app";
+import { setDoc, doc } from "firebase/firestore";
+import { db } from "@/firebase/config";
+import toast from "react-hot-toast";
 
-export default function RegisterForm() {
+export default function RegisterForm({ loading, setLoading }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,10 +18,17 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      let user = await createUserWithEmailAndPassword(auth, email, password);
+      await setDoc(doc(db, "users", user.uid), {
+        username: user.email.split("@")[0],
+        avatar: null,
+        bio: "",
+        createdAt: new Date(),
+      });
       router.push("/");
       // Redirect or handle after success
-    } catch (err: any) {
+    } catch (err: FirebaseError) {
+      toast.error(err.message);
       setError(err.message);
     }
   };
@@ -32,6 +43,7 @@ export default function RegisterForm() {
       <div className="relative">
         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
         <input
+          required
           type="email"
           placeholder="Email"
           value={email}
@@ -43,6 +55,7 @@ export default function RegisterForm() {
       <div className="relative">
         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
         <input
+          required
           type="password"
           placeholder="Password"
           value={password}

@@ -1,36 +1,42 @@
 "use client";
+import toast from "react-hot-toast";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/config";
 import { useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { FirebaseError } from "firebase/app";
 
-export default function EmailSignInForm() {
+export default function EmailSignInForm({ loading, setLoading }) {
   const router = useRouter();
-  const { user, loading } = useAuthContext();
+  const { user } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  if (loading) return <p className="text-gray-400">Loading...</p>;
-
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: FirebaseError) {
       if (err.code === "auth/user-not-found") {
+        toast.error("No user found, but you can create one");
         // If the user is not found, send them to register page
         router.push("/register");
       } else {
         if (err.message) {
+          toast.error(err.message);
           setError(err.message);
         } else {
+          toast.error("Login failed, try again!");
           setError("Login failed, try again!");
         }
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,6 +53,7 @@ export default function EmailSignInForm() {
           size={18}
         />
         <input
+          required
           type="email"
           placeholder="Email"
           value={email}
@@ -60,6 +67,7 @@ export default function EmailSignInForm() {
           size={18}
         />
         <input
+          required
           type="password"
           placeholder="Password"
           value={password}

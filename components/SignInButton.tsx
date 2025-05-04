@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/config";
 import { useAuthContext } from "@/context/AuthContext";
 
-export default function SignInButton() {
-  const { user, loading } = useAuthContext();
+export default function SignInButton({loading,setLoading}) {
+  const { user } = useAuthContext();
+  
   const router = useRouter();
-  if (loading) return <p className="text-gray-400">Loading...</p>;
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
 
@@ -19,6 +20,8 @@ export default function SignInButton() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Auth error", err);
+    } finally {
+      setLoading(false);
     }
   };
 
