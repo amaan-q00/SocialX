@@ -87,7 +87,11 @@ export default function RegisterForm({
       >
         {loading ? "Registering..." : "Register"}
       </button>
-
+      <p className="text-sm text-muted text-center">
+        <a href="/" className="text-brand hover:underline">
+          Back to Sign In
+        </a>
+      </p>
       {/* {error && <p className="text-red-400 text-sm mt-1">{error}</p>} */}
     </form>
   );

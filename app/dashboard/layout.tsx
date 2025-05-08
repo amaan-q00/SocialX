@@ -29,23 +29,31 @@ export default function DashboardLayout({
         <div className="flex justify-between items-center px-4 py-3 border-b border-zinc-800">
           <h2 className="text-lg font-medium">Hi, {username} 👋</h2>
           <div className="relative">
-            <button onClick={() => setMenuOpen(!menuOpen)}>
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label="Open menu"
+              className="focus:outline-none focus:ring-2 focus:ring-brand rounded"
+            >
               <MoreVertical />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-44 bg-zinc-900 border border-zinc-700 rounded shadow-md z-50">
+              <div
+                className="absolute right-0 mt-2 w-44 bg-zinc-900 border border-zinc-700 rounded shadow-md z-50"
+                role="menu"
+              >
                 <button
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() => {
+                    setMenuOpen(false);
+                  }}
                   className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-zinc-800"
+                  role="menuitem"
                 >
                   <UserIcon size={18} />
                   Profile
                 </button>
                 <hr className="border-zinc-700 my-1" />
                 <SignOutButton
-                  className={
-                    "w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-zinc-800"
-                  }
+                  className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-zinc-800"
                   loading={loading}
                   setLoading={setLoading}
                 />

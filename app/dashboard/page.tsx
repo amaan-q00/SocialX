@@ -1,37 +1,54 @@
-'use client';
-import { useState } from 'react';
-import { MessageCircle, Users, User as UserIcon } from 'lucide-react';
-import { useAuthContext } from '@/context/AuthContext';
+"use client";
+import { useState } from "react";
+import { MessageCircle, Users, User as UserIcon } from "lucide-react";
+import { useAuthContext } from "@/context/AuthContext";
 
 export default function DashboardPage() {
   const { userData } = useAuthContext(); // Use userData instead of user
 
-  const [activeTab, setActiveTab] = useState<'Chats' | 'Friends' | 'Profile'>('Chats');
+  const [activeTab, setActiveTab] = useState<"Chats" | "Friends" | "Profile">(
+    "Chats"
+  );
 
   const TABS = [
-    { label: 'Chats', icon: MessageCircle },
-    { label: 'Friends', icon: Users },
-    { label: 'Profile', icon: UserIcon },
+    { label: "Chats", icon: MessageCircle },
+    { label: "Friends", icon: Users },
+    { label: "Profile", icon: UserIcon },
   ];
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'Chats':
+      case "Chats":
         return <p>This is where your chats will appear.</p>;
-      case 'Friends':
+      case "Friends":
         return <p>Your friends will show up here.</p>;
-      case 'Profile':
+      case "Profile":
         return (
-          <div>
+          <div className="flex flex-col items-center">
             <p>This is your profile</p>
-            {/* Use userData to display profile information */}
             <p>Email: {userData?.email}</p>
             <p>Username: {userData?.username}</p>
-            <img
-              src={userData?.profilePic || '/default-avatar.png'} // Default avatar if no profile picture
-              alt="Profile Pic"
-              className="w-24 h-24 rounded-full"
-            />
+            <div className="relative">
+              <img
+                src={userData?.profilePic || "/default-avatar.png"}
+                alt="Profile Pic"
+                className="w-24 h-24 rounded-full object-cover"
+              />
+              {!userData?.profilePic && (
+                <button
+                  onClick={() => alert("Upload Profile Picture")}
+                  className="absolute bottom-0 right-0 bg-brand text-white p-1 rounded-full"
+                >
+                  <span className="text-sm">+</span>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => alert("Edit Profile")}
+              className="mt-4 px-4 py-2 bg-accent text-text rounded-full hover:bg-accent-dark transition"
+            >
+              Edit Profile
+            </button>
           </div>
         );
       default:
@@ -41,7 +58,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1">{renderTabContent()}</div>
+      <div className="flex-1 p-4 bg-zinc-800 rounded-lg shadow-md transition-all duration-300">
+        {renderTabContent()}
+      </div>
 
       {/* Bottom Tabs */}
       <div className="flex justify-around items-center border-t border-zinc-800 bg-zinc-900 p-2 mt-4">
@@ -54,8 +73,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab(tab.label as any)}
               className={`flex flex-col items-center text-sm transition-all ${
                 isActive
-                  ? 'text-brand font-semibold'
-                  : 'text-white/80 hover:text-white'
+                  ? "text-brand font-semibold border-brand"
+                  : "text-white/80 hover:text-white"
               }`}
             >
               <Icon size={20} />

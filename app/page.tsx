@@ -1,45 +1,55 @@
 "use client";
 import EmailSignInForm from "@/components/EmailSignInForm";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import ProtectedRoute from "@/components/ProtectedRoutes";
 import SignInButton from "@/components/SignInButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/dashboard"); // No flicker
+    }
+  }, [user, router]);
+
+  if (user) return null; // Prevent flicker while redirecting
+
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-bg text-text px-6 py-12">
-        {loading && <LoadingOverlay />}
-        <div className="w-full max-w-md space-y-8 text-center">
-          <div>
-            <h1 className="text-5xl font-extrabold text-brand tracking-tight">
-              Welcome to SocialX
-            </h1>
-            <p className="mt-3 text-lg text-muted">
-              Share media, chat with friends, and experience a new kind of
-              social network.
-            </p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-bg text-text px-6 py-12">
+      {loading && <LoadingOverlay />}
+      <div className="w-full max-w-md space-y-8 text-center">
+        <div>
+          <h1 className="text-5xl font-extrabold text-brand tracking-tight">
+            Welcome to SocialX
+          </h1>
+          <p className="mt-3 text-lg text-muted">
+            Share media, chat with friends, and experience a new kind of
+            social network.
+          </p>
+        </div>
+
+        <div className="bg-zinc-900 rounded-xl p-6 shadow-xl flex flex-col gap-6">
+          <SignInButton loading={loading} setLoading={setLoading} />
+
+          <div className="flex items-center gap-2 text-muted text-sm">
+            <div className="flex-grow h-px bg-muted" />
+            OR
+            <div className="flex-grow h-px bg-muted" />
           </div>
 
-          <div className="bg-zinc-900 rounded-xl p-6 shadow-xl flex flex-col gap-6">
-            <SignInButton loading={loading} setLoading={setLoading} />
-
-            <div className="flex items-center gap-2 text-muted text-sm">
-              <div className="flex-grow h-px bg-muted" />
-              OR
-              <div className="flex-grow h-px bg-muted" />
-            </div>
-
-            <EmailSignInForm loading={loading} setLoading={setLoading} />
-            <p className="text-sm text-muted text-center">
-              <a href="/forgot-password" className="text-brand hover:underline">
-                Forgot your password?
-              </a>
-            </p>
-          </div>
+          <EmailSignInForm loading={loading} setLoading={setLoading} />
+          <p className="text-sm text-muted text-center">
+            <a href="/forgot-password" className="text-brand hover:underline">
+              Forgot your password?
+            </a>
+          </p>
         </div>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }

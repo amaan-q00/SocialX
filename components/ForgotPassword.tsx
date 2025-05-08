@@ -10,22 +10,22 @@ import LoadingOverlay from "./LoadingOverlay";
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
 
-  const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+    if (!email.includes("@") || email.length < 5) {
+      toast.error("Please enter a valid email.");
+      return;
+    }
+
     try {
       setLoading(true);
       await sendPasswordResetEmail(auth, email);
-      toast.success("Password reset email sent!")
-      setMessage("Password reset email sent!");
-      setError("");
+      toast.success("Password reset email sent!");
     } catch (error) {
       const err = error as FirebaseError;
-      setMessage("");
-      toast.error(err.message || "Something went wrong.")
-      setError(err.message || "Something went wrong.");
+      toast.error(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export default function ForgotPassword() {
           size={18}
         />
         <input
-        required
+          required
           type="email"
           placeholder="Your email"
           value={email}
@@ -62,8 +62,6 @@ export default function ForgotPassword() {
           Back to Sign In
         </a>
       </p>
-      {message && <p className="text-green-400 text-sm">{message}</p>}
-      {error && <p className="text-red-400 text-sm">{error}</p>}
     </form>
   );
 }

@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
 } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/firebase/config"; // Assuming this is where Firebase auth is initialized
@@ -18,7 +19,6 @@ interface UserProfile {
   username: string;
   profilePic: string;
   createdAt: Date;
-  [key: string]: any; // future-proofing
 }
 
 interface AuthContextType {
@@ -26,7 +26,8 @@ interface AuthContextType {
   userData: UserProfile | null;
   loading: boolean;
   loadingProfile: boolean;
-  fetchOrCreateUserProfile: (firebaseUser: User) => Promise<void>; // Expose function here
+  error: string | null;
+  fetchOrCreateUserProfile: (firebaseUser: User) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -34,14 +35,16 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   loading: false,
   loadingProfile: false,
-  fetchOrCreateUserProfile: async () => {}, // Provide a no-op function as default
+  error: null,
+  fetchOrCreateUserProfile: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true); // To track the Firebase auth loading state
-  const [loadingProfile, setLoadingProfile] = useState(true); // To track Firestore profile loading state
+  const [loading, setLoading] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -49,23 +52,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
 
       if (firebaseUser) {
-        await fetchOrCreateUserProfile(firebaseUser); // Fetch user profile from Firestore
+        await fetchOrCreateUserProfile(firebaseUser);
       } else {
-        setUserData(null); // If no user is logged in, reset the user data
+        setUserData(null);
       }
     });
 
-    return () => unsubscribe(); // Clean up the subscription when the component unmounts
+    return () => unsubscribe();
   }, []);
 
-  const fetchOrCreateUserProfile = async (firebaseUser: User) => {
+  const fetchOrCreateUserProfile = useCallback(async (firebaseUser: User) => {
     try {
       setLoadingProfile(true);
       const userRef = doc(db, "users", firebaseUser.uid);
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        // Create user profile if it doesn't exist
         const newUserProfile: UserProfile = {
           uid: firebaseUser.uid,
           email: firebaseUser.email || "",
@@ -76,19 +78,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await setDoc(userRef, newUserProfile);
         setUserData(newUserProfile);
       } else {
-        // If the profile exists, load it
         setUserData(userSnap.data() as UserProfile);
       }
     } catch (err) {
       console.error("Error loading user profile:", err);
-      setUserData(null); // Set user data to null if there's an error fetching it
+      setUserData(null);
+      setError("Failed to load your profile. Please try again.");
     } finally {
       setLoadingProfile(false);
     }
-  };
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, loadingProfile, fetchOrCreateUserProfile }}>
+    <AuthContext.Provider value={{ user, userData, loading, loadingProfile, error, fetchOrCreateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

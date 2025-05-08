@@ -10,18 +10,25 @@ import { FirebaseError } from "firebase/app";
 
 interface EmailSignInFormProps {
   loading: boolean;
-  setLoading: (value: boolean) => void;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-export default function EmailSignInForm({ loading, setLoading }: EmailSignInFormProps) {
+export default function EmailSignInForm({
+  loading,
+  setLoading,
+}: EmailSignInFormProps) {
   const router = useRouter();
-  const { user,fetchOrCreateUserProfile } = useAuthContext();
+  const { user, fetchOrCreateUserProfile } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+    if (!email.includes("@")) {
+      toast.error("Enter a valid email.");
+      return;
+    }
+
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
@@ -32,23 +39,19 @@ export default function EmailSignInForm({ loading, setLoading }: EmailSignInForm
     } catch (err) {
       const error = err as FirebaseError;
       if (error.code === "auth/user-not-found") {
-        toast.error("No user found, but you can create one");
+        toast.error("No user found. Try registering.");
         router.push("/register");
       } else {
-        const message = error.message || "Login failed, try again!";
-        toast.error(message);
-        setError(message);
+        toast.error(error.message || "Login failed. Try again.");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegisterRedirect = () => {
-    router.push("/register");
-  };
+  if (user) return null;
 
-  return user ? null : (
+  return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
       <div className="relative">
         <Mail
@@ -89,14 +92,12 @@ export default function EmailSignInForm({ loading, setLoading }: EmailSignInForm
 
       <button
         type="button"
-        onClick={handleRegisterRedirect}
+        onClick={() => router.push("/register")}
         className="flex items-center justify-center gap-2 bg-accent text-text p-2 rounded-md font-semibold hover:bg-brand transition mt-4"
       >
         <UserPlus size={18} />
         Register
       </button>
-
-      {/* {error && <p className="text-red-400 text-sm mt-1">{error}</p>} */}
     </form>
   );
 }

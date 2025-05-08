@@ -8,16 +8,18 @@ export default function ProtectedRoute({
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuthContext();
+  const { user, loading } = useAuthContext();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      router.push("/");
-    } else {
-      router.push("/dashboard");
+    if (!loading) {
+      if (!user) {
+        router.push("/");
+      }
     }
-  }, [user, router]);
+  }, [user, loading, router]);
+
+  if (loading) return null; // Or a fancy loading spinner if you want
 
   return <>{children}</>;
 }
