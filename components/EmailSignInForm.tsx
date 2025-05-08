@@ -2,45 +2,45 @@
 import toast from "react-hot-toast";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/config";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
 
-export default function EmailSignInForm({ loading, setLoading }) {
+interface EmailSignInFormProps {
+  loading: boolean;
+  setLoading: (value: boolean) => void;
+}
+
+export default function EmailSignInForm({ loading, setLoading }: EmailSignInFormProps) {
   const router = useRouter();
   const { user } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
-    } catch (err: FirebaseError) {
-      if (err.code === "auth/user-not-found") {
+    } catch (err) {
+      const error = err as FirebaseError;
+      if (error.code === "auth/user-not-found") {
         toast.error("No user found, but you can create one");
-        // If the user is not found, send them to register page
         router.push("/register");
       } else {
-        if (err.message) {
-          toast.error(err.message);
-          setError(err.message);
-        } else {
-          toast.error("Login failed, try again!");
-          setError("Login failed, try again!");
-        }
+        const message = error.message || "Login failed, try again!";
+        toast.error(message);
+        setError(message);
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Redirect to register page if the user is not logged in
   const handleRegisterRedirect = () => {
     router.push("/register");
   };
@@ -77,13 +77,13 @@ export default function EmailSignInForm({ loading, setLoading }) {
       </div>
       <button
         type="submit"
-        className="flex items-center justify-center gap-2 bg-brand text-text p-2 rounded-md font-semibold hover:bg-accent transition"
+        disabled={loading}
+        className="flex items-center justify-center gap-2 bg-brand text-text p-2 rounded-md font-semibold hover:bg-accent transition disabled:opacity-50"
       >
         <LogIn size={18} />
-        Log In
+        {loading ? "Logging in..." : "Log In"}
       </button>
 
-      {/* Register button */}
       <button
         type="button"
         onClick={handleRegisterRedirect}

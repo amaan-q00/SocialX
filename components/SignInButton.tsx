@@ -4,8 +4,12 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/config";
 import { useAuthContext } from "@/context/AuthContext";
+interface SignInProps {
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-export default function SignInButton({loading,setLoading}) {
+export default function SignInButton({loading,setLoading}: SignInProps) {
   const { user } = useAuthContext();
   
   const router = useRouter();

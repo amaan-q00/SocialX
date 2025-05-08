@@ -1,35 +1,46 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/config";
-import { User, Lock, Mail } from "lucide-react"; // Importing icons from react-lucid-icons
+import { User, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
 
-export default function RegisterForm({ loading, setLoading }) {
+interface RegisterFormProps {
+  loading: boolean;
+  setLoading: (value: boolean) => void;
+}
+
+export default function RegisterForm({ loading, setLoading }: RegisterFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      let user = await createUserWithEmailAndPassword(auth, email, password);
+      setLoading(true);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
       await setDoc(doc(db, "users", user.uid), {
-        username: user.email.split("@")[0],
+        username: user.email?.split("@")[0] || "unknown",
         avatar: null,
         bio: "",
         createdAt: new Date(),
       });
+
       router.push("/");
-      // Redirect or handle after success
-    } catch (err: FirebaseError) {
-      toast.error(err.message);
-      setError(err.message);
+    } catch (err) {
+      const error = err as FirebaseError;
+      toast.error(error.message || "Registration failed");
+      setError(error.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,9 +77,10 @@ export default function RegisterForm({ loading, setLoading }) {
 
       <button
         type="submit"
-        className="flex items-center justify-center gap-2 bg-brand text-bg p-2 rounded-md font-semibold hover:bg-accent transition"
+        disabled={loading}
+        className="flex items-center justify-center gap-2 bg-brand text-bg p-2 rounded-md font-semibold hover:bg-accent transition disabled:opacity-50"
       >
-        Register
+        {loading ? "Registering..." : "Register"}
       </button>
 
       {error && <p className="text-red-400 text-sm mt-1">{error}</p>}

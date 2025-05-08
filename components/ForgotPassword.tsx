@@ -21,7 +21,8 @@ export default function ForgotPassword() {
       toast.success("Password reset email sent!")
       setMessage("Password reset email sent!");
       setError("");
-    } catch (err: FirebaseError) {
+    } catch (error) {
+      const err = error as FirebaseError;
       setMessage("");
       toast.error(err.message || "Something went wrong.")
       setError(err.message || "Something went wrong.");

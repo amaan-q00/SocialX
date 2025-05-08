@@ -4,7 +4,7 @@ import { auth } from "@/firebase/config";
 import { useAuthContext } from "@/context/AuthContext";
 
 export default function SignOutButton() {
-  const { user, loading } = useAuthContext();
+  const { user } = useAuthContext();
   return user ? (
     <button
       onClick={() => signOut(auth)}
