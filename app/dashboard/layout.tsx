@@ -1,44 +1,70 @@
-'use client';
-import { useState } from 'react';
-import { AuthProvider } from "@/context/AuthContext";
+"use client";
+import { useAuthContext } from "@/context/AuthContext";
+import { useState } from "react";
+import {
+  MoreVertical,
+  MessageCirclePlus,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react";
+import SignOutButton from "@/components/SignOutButton";
 import ProtectedRoute from "@/components/ProtectedRoutes";
-import  SignOutButton  from "@/components/SignOutButton";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { userData } = useAuthContext(); // Use userData instead of user
+  const username = userData?.username || "User"; // Use username from userData
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   return (
-    <AuthProvider>
-      <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
-        {/* Sidebar */}
-        <aside
-          className={`w-64 bg-white dark:bg-gray-800 shadow p-4 fixed md:relative top-0 left-0 z-10 transition-transform transform ${
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } md:translate-x-0 md:block`}
-        >
-          <h1 className="text-2xl font-bold mb-8 text-black dark:text-white">socialX</h1>
-          <SignOutButton />
-        </aside>
-
-        {/* Main content with topbar */}
-        <main className="flex-1 ml-0 md:ml-64 p-4">
-          {/* Mobile menu toggle */}
-          <button
-            className="md:hidden text-white bg-black p-2 rounded"
-            onClick={() => setSidebarOpen(!isSidebarOpen)}
-          >
-            ☰
-          </button>
-
-          {/* <header className="w-full bg-white dark:bg-gray-800 shadow p-4 flex justify-end md:hidden">
-            <SignOutButton />
-          </header> */}
-
-          <div className="p-6">
-            <ProtectedRoute>{children}</ProtectedRoute>
+    <ProtectedRoute>
+      {loading && <LoadingOverlay />}
+      <div className="flex flex-col h-screen bg-black text-white relative">
+        {/* Top bar */}
+        <div className="flex justify-between items-center px-4 py-3 border-b border-zinc-800">
+          <h2 className="text-lg font-medium">Hi, {username} 👋</h2>
+          <div className="relative">
+            <button onClick={() => setMenuOpen(!menuOpen)}>
+              <MoreVertical />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-44 bg-zinc-900 border border-zinc-700 rounded shadow-md z-50">
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-zinc-800"
+                >
+                  <UserIcon size={18} />
+                  Profile
+                </button>
+                <hr className="border-zinc-700 my-1" />
+                <SignOutButton
+                  className={
+                    "w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-zinc-800"
+                  }
+                  loading={loading}
+                  setLoading={setLoading}
+                />
+              </div>
+            )}
           </div>
-        </main>
+        </div>
+
+        {/* Tab Content */}
+        <div className="flex-1 overflow-y-auto p-4">{children}</div>
+
+        {/* FAB */}
+        <button
+          className="fixed bottom-20 right-4 w-14 h-14 bg-brand rounded-full flex items-center justify-center shadow-lg hover:bg-brand-dark transition-all"
+          // onClick={() => console.log('FAB clicked')}
+        >
+          <MessageCirclePlus size={24} />
+        </button>
       </div>
-    </AuthProvider>
+    </ProtectedRoute>
   );
 }

@@ -9,9 +9,8 @@ interface SignInProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function SignInButton({loading,setLoading}: SignInProps) {
-  const { user } = useAuthContext();
-  
+export default function SignInButton({ loading, setLoading }: SignInProps) {
+  const { user, loading: userLoading } = useAuthContext();
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -19,8 +18,7 @@ export default function SignInButton({loading,setLoading}: SignInProps) {
       setLoading(true);
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-
-      //  redirect to dashboard after successful sign-in
+      // Redirect to dashboard after successful sign-in
       router.push("/dashboard");
     } catch (err) {
       console.error("Auth error", err);
@@ -29,9 +27,13 @@ export default function SignInButton({loading,setLoading}: SignInProps) {
     }
   };
 
-  return user ? null : (
+  // Show the button only if the user is not logged in and we're not loading
+  if (user || userLoading) return null;
+
+  return (
     <button
       onClick={handleLogin}
+      disabled={loading}
       className="flex items-center justify-center gap-2 bg-brand text-text font-medium px-4 py-2 rounded-lg hover:bg-accent transition"
     >
       <img
@@ -39,7 +41,7 @@ export default function SignInButton({loading,setLoading}: SignInProps) {
         alt="Google"
         className="h-5 w-5"
       />
-      <span>Sign in with Google</span>
+      <span>{loading ? "Logging in..." : "Sign in with Google"}</span>
     </button>
   );
 }

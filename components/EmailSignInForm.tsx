@@ -15,7 +15,7 @@ interface EmailSignInFormProps {
 
 export default function EmailSignInForm({ loading, setLoading }: EmailSignInFormProps) {
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user,fetchOrCreateUserProfile } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,7 +25,10 @@ export default function EmailSignInForm({ loading, setLoading }: EmailSignInForm
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      if (auth.currentUser) {
+        await fetchOrCreateUserProfile(auth.currentUser);
+        router.push("/dashboard");
+      }
     } catch (err) {
       const error = err as FirebaseError;
       if (error.code === "auth/user-not-found") {
@@ -93,7 +96,7 @@ export default function EmailSignInForm({ loading, setLoading }: EmailSignInForm
         Register
       </button>
 
-      {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+      {/* {error && <p className="text-red-400 text-sm mt-1">{error}</p>} */}
     </form>
   );
 }

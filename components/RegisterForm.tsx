@@ -14,7 +14,10 @@ interface RegisterFormProps {
   setLoading: (value: boolean) => void;
 }
 
-export default function RegisterForm({ loading, setLoading }: RegisterFormProps) {
+export default function RegisterForm({
+  loading,
+  setLoading,
+}: RegisterFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,15 +27,17 @@ export default function RegisterForm({ loading, setLoading }: RegisterFormProps)
     e.preventDefault();
     try {
       setLoading(true);
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
-      await setDoc(doc(db, "users", user.uid), {
-        username: user.email?.split("@")[0] || "unknown",
-        avatar: null,
-        bio: "",
-        createdAt: new Date(),
-      });
+      if (!user.emailVerified) {
+        toast.error("Please verify your email before logging in.");
+        await auth.signOut();
+      }
 
       router.push("/");
     } catch (err) {
@@ -83,7 +88,7 @@ export default function RegisterForm({ loading, setLoading }: RegisterFormProps)
         {loading ? "Registering..." : "Register"}
       </button>
 
-      {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+      {/* {error && <p className="text-red-400 text-sm mt-1">{error}</p>} */}
     </form>
   );
 }

@@ -1,21 +1,23 @@
-'use client';
-import  {useAuthContext}  from "@/context/AuthContext";
+"use client";
+import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuthContext();
+export default function ProtectedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user } = useAuthContext();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/');
+    if (!user) {
+      router.push("/");
+    } else {
+      router.push("/dashboard");
     }
-  }, [user, loading, router]);
-
-  if (loading || (!loading && !user)) {
-    return null; // Don't render anything while loading or redirecting
-  }
+  }, [user, router]);
 
   return <>{children}</>;
 }
