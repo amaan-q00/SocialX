@@ -2,34 +2,23 @@
 import EmailSignInForm from "@/components/EmailSignInForm";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import SignInButton from "@/components/SignInButton";
-import { useState, useEffect } from "react";
-import { useAuthContext } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
-  const { user } = useAuthContext();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (user) {
-      router.replace("/dashboard"); // No flicker
-    }
-  }, [user, router]);
-
-  if (user) return null; // Prevent flicker while redirecting
-
-  return (
+  return loading ? (
+    <LoadingOverlay />
+  ) : (
     <div className="min-h-screen flex flex-col items-center justify-center bg-bg text-text px-6 py-12">
-      {loading && <LoadingOverlay />}
       <div className="w-full max-w-md space-y-8 text-center">
         <div>
           <h1 className="text-5xl font-extrabold text-brand tracking-tight">
             Welcome to SocialX
           </h1>
           <p className="mt-3 text-lg text-muted">
-            Share media, chat with friends, and experience a new kind of
-            social network.
+            Share media, chat with friends, and experience a new kind of social
+            network.
           </p>
         </div>
 

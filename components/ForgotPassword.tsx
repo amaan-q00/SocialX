@@ -31,12 +31,13 @@ export default function ForgotPassword() {
     }
   };
 
-  return (
+  return loading ? (
+    <LoadingOverlay />
+  ) : (
     <form
       onSubmit={handleReset}
       className="flex flex-col gap-3 w-full max-w-sm"
     >
-      {loading && <LoadingOverlay />}
       <div className="relative">
         <MailCheck
           className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
