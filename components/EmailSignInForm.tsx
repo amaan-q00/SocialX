@@ -1,6 +1,9 @@
 "use client";
 import toast from "react-hot-toast";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "@/firebase/config";
 import { useState, FormEvent } from "react";
 import { useAuthContext } from "@/context/AuthContext";
@@ -32,9 +35,17 @@ export default function EmailSignInForm({
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      if (auth.currentUser) {
+      if (auth.currentUser && auth.currentUser.emailVerified) {
         await fetchOrCreateUserProfile(auth.currentUser);
         router.push("/dashboard");
+      } else {
+        if (auth.currentUser && !auth.currentUser.emailVerified) {
+          await sendEmailVerification(auth.currentUser);
+          await auth.signOut();
+          toast.success(
+            "Email with verification link sent to your email. Please verify your email before logging in."
+          );
+        }
       }
     } catch (err) {
       const error = err as FirebaseError;

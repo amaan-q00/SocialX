@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -17,6 +17,7 @@ interface UserProfile {
   uid: string;
   email: string;
   username: string;
+  bio: string;
   profilePic: string;
   createdAt: Date;
 }
@@ -48,14 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      setLoading(false);
-
-      if (firebaseUser) {
+      if (firebaseUser?.emailVerified) {
+        setUser(firebaseUser);
         await fetchOrCreateUserProfile(firebaseUser);
       } else {
+        setUser(null);
         setUserData(null);
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -71,9 +72,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const newUserProfile: UserProfile = {
           uid: firebaseUser.uid,
           email: firebaseUser.email || "",
-          username: firebaseUser.displayName || firebaseUser?.email?.split("@")[0] || "unknown",
+          username:
+            firebaseUser.displayName ||
+            firebaseUser?.email?.split("@")[0] ||
+            "unknown",
           profilePic: firebaseUser.photoURL || "",
           createdAt: new Date(),
+          bio: "",
         };
         await setDoc(userRef, newUserProfile);
         setUserData(newUserProfile);
@@ -90,7 +95,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, loadingProfile, error, fetchOrCreateUserProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        userData,
+        loading,
+        loadingProfile,
+        error,
+        fetchOrCreateUserProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

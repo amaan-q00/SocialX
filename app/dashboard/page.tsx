@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { MessageCircle, Users, User as UserIcon } from "lucide-react";
 import { useAuthContext } from "@/context/AuthContext";
+import Profile from "@/components/Profile";
 
 export default function DashboardPage() {
-  const { userData } = useAuthContext(); // Use userData instead of user
+  const { userData } = useAuthContext();
 
   const [activeTab, setActiveTab] = useState<"Chats" | "Friends" | "Profile">(
     "Chats"
@@ -24,32 +25,7 @@ export default function DashboardPage() {
         return <p>Your friends will show up here.</p>;
       case "Profile":
         return (
-          <div className="flex flex-col items-center">
-            <p>This is your profile</p>
-            <p>Email: {userData?.email}</p>
-            <p>Username: {userData?.username}</p>
-            <div className="relative">
-              <img
-                src={userData?.profilePic || "/default-avatar.png"}
-                alt="Profile Pic"
-                className="w-24 h-24 rounded-full object-cover"
-              />
-              {!userData?.profilePic && (
-                <button
-                  onClick={() => alert("Upload Profile Picture")}
-                  className="absolute bottom-0 right-0 bg-brand text-white p-1 rounded-full"
-                >
-                  <span className="text-sm">+</span>
-                </button>
-              )}
-            </div>
-            <button
-              onClick={() => alert("Edit Profile")}
-              className="mt-4 px-4 py-2 bg-accent text-text rounded-full hover:bg-accent-dark transition"
-            >
-              Edit Profile
-            </button>
-          </div>
+          <Profile />
         );
       default:
         return null;

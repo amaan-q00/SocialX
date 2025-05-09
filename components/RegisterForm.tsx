@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, FormEvent } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "@/firebase/config";
 import { User, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -27,19 +27,18 @@ export default function RegisterForm({
     e.preventDefault();
     try {
       setLoading(true);
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
       if (!user.emailVerified) {
-        toast.error("Please verify your email before logging in.");
-        await auth.signOut();
+        // Send email verification to user
+        await sendEmailVerification(user);
+  
+        toast.success("Email with verification link sent to your email. Please verify your email before logging in.");
+        await auth.signOut(); 
       }
-
-      router.push("/");
+  
+      router.push("/"); // Redirect after sending email verification
     } catch (err) {
       const error = err as FirebaseError;
       toast.error(error.message || "Registration failed");
