@@ -15,7 +15,6 @@ export default function SignInButton({ loading, setLoading }: SignInProps) {
   const {
     user,
     loading: userLoading,
-    fetchOrCreateUserProfile,
   } = useAuthContext();
   const router = useRouter();
 
@@ -40,7 +39,7 @@ export default function SignInButton({ loading, setLoading }: SignInProps) {
     <button
       onClick={handleLogin}
       disabled={loading}
-      className="flex items-center justify-center gap-2 bg-brand text-text font-medium px-4 py-2 rounded-lg hover:bg-accent transition"
+      className="flex items-center justify-center gap-2 bg-brand text-text font-medium px-4 py-2 rounded-lg hover:bg-accent transition w-full"
     >
       <img
         src="/icons/google.svg"

@@ -1,7 +1,10 @@
 "use client";
+
 import EmailSignInForm from "@/components/EmailSignInForm";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import SignInButton from "@/components/SignInButton";
+import Image from "next/image";
+import logo from "@/public/logo.png"; // or wherever your actual logo is
 import { useState } from "react";
 
 export default function Home() {
@@ -10,19 +13,21 @@ export default function Home() {
   return loading ? (
     <LoadingOverlay />
   ) : (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-bg text-text px-6 py-12">
-      <div className="w-full max-w-md space-y-8 text-center">
-        <div>
-          <h1 className="text-5xl font-extrabold text-brand tracking-tight">
-            Welcome to SocialX
-          </h1>
-          <p className="mt-3 text-lg text-muted">
-            Share media, chat with friends, and experience a new kind of social
-            network.
+    <div className="min-h-screen bg-bg text-text flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-2xl space-y-6">
+        {/* Brand Header */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Image src={logo} alt="SocialX" width={50} height={50} />
+            <span className="text-3xl font-bold text-brand pb-1">SocialX</span>
+          </div>
+          <p className="text-sm text-muted text-center">
+            Share media, chat with friends, and experience a new kind of social network.
           </p>
         </div>
 
-        <div className="bg-zinc-900 rounded-xl p-6 shadow-xl flex flex-col gap-6">
+        {/* Auth Box */}
+        <div className="space-y-5">
           <SignInButton loading={loading} setLoading={setLoading} />
 
           <div className="flex items-center gap-2 text-muted text-sm">
@@ -32,11 +37,15 @@ export default function Home() {
           </div>
 
           <EmailSignInForm loading={loading} setLoading={setLoading} />
-          <p className="text-sm text-muted text-center">
+
+          <div className="flex justify-between text-sm text-muted">
             <a href="/forgot-password" className="text-brand hover:underline">
-              Forgot your password?
+              Forgot password?
             </a>
-          </p>
+            <a href="/register" className="text-brand hover:underline">
+              Sign up
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -8,11 +8,13 @@ interface SignOutButtonProps {
   className?: string;
   loading?: boolean;
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+  label?: string;
 }
 export default function SignOutButton({
   className = "",
   loading,
   setLoading,
+  label = "Logout",
 }: SignOutButtonProps) {
   const router = useRouter();
 
@@ -29,7 +31,7 @@ export default function SignOutButton({
       className={`text-left w-full px-4 py-2 ${className}`}
     >
       <LogOut size={18} />
-      Logout
+      {label}
     </button>
   );
 }

@@ -24,22 +24,19 @@ export default function DashboardPage() {
       case "Friends":
         return <p>Your friends will show up here.</p>;
       case "Profile":
-        return (
-          <Profile />
-        );
+        return <Profile />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 p-4 bg-zinc-800 rounded-lg shadow-md transition-all duration-300">
-        {renderTabContent()}
-      </div>
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4">{renderTabContent()}</div>
 
       {/* Bottom Tabs */}
-      <div className="flex justify-around items-center border-t border-zinc-800 bg-zinc-900 p-2 mt-4">
+      <div className="flex justify-around items-center border-t border-zinc-800 bg-zinc-900 p-2">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.label;
           const Icon = tab.icon;
