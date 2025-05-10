@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 SocialX
 
-## Getting Started
+**Live Demo**: [https://social-x-five.vercel.app](https://social-x-five.vercel.app)
 
-First, run the development server:
+SocialX is a full-stack social media platform where users can upload and share disappearing media (images, videos, audio). It’s privacy-first and chat-focused, built with modern web tools.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js, TypeScript, Tailwind CSS  
+- **Backend**: Firebase (Auth, Firestore, Storage)  
+- **Realtime**: Firestore Subscriptions  
+- **State Management**: React Context API  
+- **Deployment**: Vercel  
+
+---
+
+## ✨ Features (Work In Progress)
+
+- ✅ User Authentication (Sign up, Log in, Log out)  
+- ✅ Upload & Display Media (Images, Videos, Audio)  
+- ✅ Disappearing Media Logic  
+- ✅ Responsive Mobile/Desktop UI  
+- ⏳ Friend Management *(Coming Soon)*  
+- ⏳ One-on-One Chat with Disappearing Messages *(Coming Soon)*  
+- ⏳ Superuser Mode: View Expired Content *(Planned)*  
+- ⏳ Activity Logging *(Planned)*  
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/amaan-q00/SocialX.git
+cd SocialX
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Set up environment variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+
+### 4. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Folder Structure
 
-## Learn More
+```txt
+├── app/                # Next.js App Directory  
+├── components/         # Reusable UI Components  
+├── context/            # Global State Management  
+├── firebase/           # Firebase Config & Utils  
+├── lib/                # Helper Functions  
+├── public/             # Static Assets  
+├── styles/             # Global Styles (Tailwind)  
+├── .env.local          # Environment Variables  
+├── next.config.js      # Next.js Configuration  
+└── tailwind.config.js  # Tailwind Configuration  
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🧭 Roadmap
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [x] Media Upload and Display  
+- [x] Disappearing Media Logic  
+- [ ] Friend Management System  
+- [ ] Private Chat with Expiry  
+- [ ] Superuser & Moderation Tools  
+- [ ] UI/UX Polish & Final Deployment  
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License
+
+---
+
+**Note**: This project is actively in development. Expect updates, tweaks, and new features.
