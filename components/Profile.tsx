@@ -98,7 +98,7 @@ export default function Profile() {
           </div>
         )}
 
-        <div className="absolute bottom-0 right-0 bg-accent text-white p-2 rounded-full shadow-lg group-hover:scale-110 transition-transform">
+        <div className="absolute bottom-0 right-0 bg-brand text-white p-2 rounded-full shadow-lg group-hover:scale-110 transition-transform">
           <Pencil size={18} />
         </div>
 
@@ -129,7 +129,7 @@ export default function Profile() {
       <button
         onClick={handleProfileUpdate}
         disabled={saving}
-        className="bg-accent px-6 py-3 rounded text-white font-semibold hover:bg-brand transition"
+        className="bg-brand px-6 py-3 rounded text-white font-semibold hover:bg-accent transition"
       >
         {saving ? "Saving..." : "Save Changes"}
       </button>
