@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MessageCircle, Users, User as UserIcon } from "lucide-react";
 import { useAuthContext } from "@/context/AuthContext";
 import Profile from "@/components/Profile";
+import FriendsTab from "@/components/Friends";
 
 export default function DashboardPage() {
   const { userData } = useAuthContext();
@@ -22,7 +23,7 @@ export default function DashboardPage() {
       case "Chats":
         return <p>This is where your chats will appear.</p>;
       case "Friends":
-        return <p>Your friends will show up here.</p>;
+        return <FriendsTab/>
       case "Profile":
         return <Profile />;
       default:
