@@ -9,6 +9,7 @@ import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 import { Pencil, UserIcon, LogOut, Trash2 } from "lucide-react";
 import { signOut, deleteUser } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import InlineLoader from "@/components/InlineLoader"; // 🧠 make sure this exists
 
 export default function Profile() {
   const { user, userData, fetchOrCreateUserProfile } = useAuthContext();
@@ -55,7 +56,7 @@ export default function Profile() {
     try {
       await signOut(auth);
       toast.success("Logged out successfully");
-      router.push("/login"); // Redirect to login page
+      router.push("/login");
     } catch (err) {
       toast.error("Logout failed");
     }
@@ -68,7 +69,7 @@ export default function Profile() {
     try {
       await deleteUser(currentUser);
       toast.success("Account deleted. Peace out ✌️");
-      router.push("/login"); // Redirect to login after account deletion
+      router.push("/login");
     } catch (err: any) {
       console.error(err);
       toast.error("Couldn't delete account. Try logging in again.");
@@ -82,6 +83,7 @@ export default function Profile() {
       <h3 className="text-2xl font-semibold text-brand">Update Profile</h3>
 
       <div className="relative w-28 h-28 group">
+        {saving && !profilePicFile && <InlineLoader />} {/* loader only if saving without uploading new pic */}
         {profilePicFile || userData?.profilePic ? (
           <img
             src={
@@ -126,13 +128,17 @@ export default function Profile() {
         className="bg-zinc-800 p-3 rounded w-full max-w-sm text-white placeholder-muted border-2 border-zinc-700 focus:ring-2 focus:ring-accent transition"
       />
 
-      <button
-        onClick={handleProfileUpdate}
-        disabled={saving}
-        className="bg-brand px-6 py-3 rounded text-white font-semibold hover:bg-accent transition"
-      >
-        {saving ? "Saving..." : "Save Changes"}
-      </button>
+      {/* Save Button with inline loader */}
+      <div className="relative w-full max-w-sm">
+        {saving && <InlineLoader />}
+        <button
+          onClick={handleProfileUpdate}
+          disabled={saving}
+          className="bg-brand px-6 py-3 rounded text-white font-semibold hover:bg-accent transition w-full"
+        >
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
+      </div>
 
       {/* Logout Button */}
       <button
@@ -152,7 +158,7 @@ export default function Profile() {
         Delete Account
       </button>
 
-      {/* Delete Account Modal */}
+      {/* Delete Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-zinc-900 p-8 rounded-lg shadow-lg w-full max-w-md border-2 border-zinc-700">

@@ -26,8 +26,11 @@ import { acceptFriendRequest } from "@/lib/acceptFriendRequest";
 import { rejectFriendRequest } from "@/lib/rejectFriendRequest";
 import { cancelFriendRequest } from "@/lib/cancelFriendRequest";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import InlineLoader from "./InlineLoader";
 
 export default function FriendsTab() {
+  const router = useRouter();
   const { userData } = useAuthContext();
   const uid = userData?.uid;
 
@@ -36,11 +39,12 @@ export default function FriendsTab() {
   const [requests, setRequests] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingFriends, setLoadingFriends] = useState(true);
+  const [loadingRequests, setLoadingRequests] = useState(true);
 
   useEffect(() => {
     if (!uid) return;
 
-    // Friends
     const unsubFriends = onSnapshot(
       collection(db, `users/${uid}/friends`),
       async (snap) => {
@@ -57,6 +61,7 @@ export default function FriendsTab() {
           })
         );
         setFriends(data);
+        setLoadingFriends(false);
       }
     );
 
@@ -88,10 +93,10 @@ export default function FriendsTab() {
           ...prev.filter((r) => r.direction !== "incoming"),
           ...incomingWithUserData,
         ]);
+        setLoadingRequests(false);
       }
     );
 
-    // Outgoing requests (requests where 'from' === uid)
     const unsubOutgoing = onSnapshot(
       query(
         collection(db, "friend_requests"),
@@ -120,6 +125,7 @@ export default function FriendsTab() {
           ...prev.filter((r) => r.direction !== "outgoing"),
           ...outgoingWithUserData,
         ]);
+        setLoadingRequests(false);
       }
     );
 
@@ -143,7 +149,11 @@ export default function FriendsTab() {
     setLoading(false);
   };
 
-  const handleRemoveFriend = async (friendUid: string) => {
+  const handleRemoveFriend = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    friendUid: string
+  ) => {
+    e.stopPropagation();
     try {
       await removeFriend(uid!, friendUid);
       toast.success("Friend removed");
@@ -152,7 +162,11 @@ export default function FriendsTab() {
     }
   };
 
-  const handleAccept = async (requestId: string) => {
+  const handleAccept = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    requestId: string
+  ) => {
+    e.stopPropagation();
     try {
       await acceptFriendRequest(requestId);
       toast.success("Friend request accepted");
@@ -161,7 +175,11 @@ export default function FriendsTab() {
     }
   };
 
-  const handleReject = async (requestId: string) => {
+  const handleReject = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    requestId: string
+  ) => {
+    e.stopPropagation();
     try {
       await rejectFriendRequest(requestId);
       toast("Request rejected", { icon: "🚫" });
@@ -170,7 +188,11 @@ export default function FriendsTab() {
     }
   };
 
-  const handleCancel = async (requestId: string) => {
+  const handleCancel = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    requestId: string
+  ) => {
+    e.stopPropagation();
     try {
       await cancelFriendRequest(requestId);
       toast("Request cancelled", { icon: "❌" });
@@ -187,6 +209,10 @@ export default function FriendsTab() {
     <div
       key={user.uid || user.id}
       className="flex justify-between items-center bg-zinc-800 p-3 rounded-xl hover:bg-zinc-700 transition"
+      onClick={(e) => {
+        e.stopPropagation();
+        router.push(`/chat/${user.uid}`);
+      }}
     >
       <div className="flex items-center gap-3">
         {user.profilePic ? (
@@ -200,7 +226,7 @@ export default function FriendsTab() {
         )}
         <div>
           <p className="font-medium text-white">{user.username || user.uid}</p>
-          <p className="text-sm text-zinc-400">{user.email || "No email"}</p>
+          <p className="text-sm text-zinc-400">{user.bio || "No Bio"}</p>
           {label && <p className="text-xs text-zinc-500">{label}</p>}
         </div>
       </div>
@@ -260,7 +286,9 @@ export default function FriendsTab() {
       {/* Tab Content */}
       <div className="grid gap-2">
         {activeTab === "friends" &&
-          (friends.length === 0 ? (
+          (loadingFriends ? (
+            <InlineLoader />
+          ) : friends.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center">
               You have no friends yet 😐
             </p>
@@ -269,7 +297,7 @@ export default function FriendsTab() {
               renderUserCard(
                 f,
                 <button
-                  onClick={() => handleRemoveFriend(f.uid)}
+                  onClick={(e) => handleRemoveFriend(e, f.uid)}
                   className="text-red-500 hover:text-red-400"
                   title="Remove Friend"
                 >
@@ -280,7 +308,9 @@ export default function FriendsTab() {
           ))}
 
         {activeTab === "requests" &&
-          (requests.length === 0 ? (
+          (loadingRequests ? (
+            <InlineLoader />
+          ) : requests.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center">
               No pending requests.
             </p>
@@ -291,14 +321,14 @@ export default function FriendsTab() {
                 r.direction === "incoming" ? (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleAccept(r.id)}
+                      onClick={(e) => handleAccept(e, r.id)}
                       className="text-green-500 hover:text-green-400"
                       title="Accept"
                     >
                       <Check size={18} />
                     </button>
                     <button
-                      onClick={() => handleReject(r.id)}
+                      onClick={(e) => handleReject(e, r.id)}
                       className="text-yellow-500 hover:text-yellow-400"
                       title="Reject"
                     >
@@ -307,7 +337,7 @@ export default function FriendsTab() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => handleCancel(r.id)}
+                    onClick={(e) => handleCancel(e, r.id)}
                     className="text-yellow-500 hover:text-yellow-400"
                     title="Cancel Request"
                   >

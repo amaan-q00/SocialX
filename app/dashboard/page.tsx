@@ -4,6 +4,7 @@ import { MessageCircle, Users, User as UserIcon } from "lucide-react";
 import { useAuthContext } from "@/context/AuthContext";
 import Profile from "@/components/Profile";
 import FriendsTab from "@/components/Friends";
+import RecentChats from "@/components/RecentChat";
 
 export default function DashboardPage() {
   const { userData } = useAuthContext();
@@ -21,9 +22,9 @@ export default function DashboardPage() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Chats":
-        return <p>This is where your chats will appear.</p>;
+        return <RecentChats />;
       case "Friends":
-        return <FriendsTab/>
+        return <FriendsTab />;
       case "Profile":
         return <Profile />;
       default:

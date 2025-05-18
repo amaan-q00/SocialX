@@ -1,7 +1,7 @@
-import { doc, getDoc, updateDoc, setDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, writeBatch, Timestamp } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
-export async function acceptFriendRequest(reqId: string) {
+export async function acceptFriendRequest(reqId) {
   const reqRef = doc(db, "friend_requests", reqId);
   const reqSnap = await getDoc(reqRef);
 
@@ -10,21 +10,20 @@ export async function acceptFriendRequest(reqId: string) {
   const req = reqSnap.data();
   if (req.status !== "pending") throw new Error("Request already handled");
 
-  const fromUid = req.from;
-  const toUid = req.to;
+  const { from: fromUid, to: toUid } = req;
 
-  // Accept the request
-  await updateDoc(reqRef, { status: "accepted" });
+  const batch = writeBatch(db);
 
-  // Add each other as friends
-  await Promise.all([
-    setDoc(doc(db, `users/${fromUid}/friends/${toUid}`), {
-      uid: toUid,
-      addedAt: Timestamp.now(),
-    }),
-    setDoc(doc(db, `users/${toUid}/friends/${fromUid}`), {
-      uid: fromUid,
-      addedAt: Timestamp.now(),
-    }),
-  ]);
+  batch.update(reqRef, { status: "accepted" });
+
+  batch.set(doc(db, `users/${fromUid}/friends/${toUid}`), {
+    uid: toUid,
+    addedAt: Timestamp.now(),
+  });
+  batch.set(doc(db, `users/${toUid}/friends/${fromUid}`), {
+    uid: fromUid,
+    addedAt: Timestamp.now(),
+  });
+
+  await batch.commit();
 }
