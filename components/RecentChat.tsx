@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import InlineLoader from "./InlineLoader";
 import { UserIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { onSnapshot, QuerySnapshot, DocumentData } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
 interface User {
@@ -39,26 +40,30 @@ export default function RecentChats() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!userData?.uid) return;
 
-    const fetchRecentChats = async () => {
-      try {
-        const friendsRef = collection(db, "users", userData.uid, "friends");
-        const friendsSnapshot = await getDocs(friendsRef);
+useEffect(() => {
+  if (!userData?.uid) return;
 
-        const friendUids = friendsSnapshot.docs.map((doc) => doc.id);
+  const unsubscribeFns: (() => void)[] = [];
+  let hasSetLoading = false;
 
-        const chatPromises = friendUids.map(async (friendUid) => {
-          const chatId = [userData.uid, friendUid].sort().join("_");
+  const fetchLiveChats = async () => {
+    try {
+      const friendsRef = collection(db, "users", userData.uid, "friends");
+      const friendsSnapshot = await getDocs(friendsRef);
+      const friendUids = friendsSnapshot.docs.map((doc) => doc.id);
 
-          const messagesQuery = query(
-            collection(db, "chats", chatId, "messages"),
-            orderBy("timestamp", "desc"),
-            limit(1)
-          );
-          const messagesSnapshot = await getDocs(messagesQuery);
-          const lastMessageDoc = messagesSnapshot.docs[0];
+      friendUids.forEach(async (friendUid) => {
+        const chatId = [userData.uid, friendUid].sort().join("_");
+
+        const messagesQuery = query(
+          collection(db, "chats", chatId, "messages"),
+          orderBy("timestamp", "desc"),
+          limit(1)
+        );
+
+        const unsubscribe = onSnapshot(messagesQuery, async (messageSnap: QuerySnapshot<DocumentData>) => {
+          const lastMessageDoc = messageSnap.docs[0];
           const lastMessageData = lastMessageDoc?.data() as LastMessage | undefined;
 
           const friendDocRef = doc(db, "users", friendUid);
@@ -67,36 +72,48 @@ export default function RecentChats() {
             ? (friendDocSnap.data() as User)
             : null;
 
-          return {
-            uid: friendUid,
-            chatId,
-            lastMessage: lastMessageData || { text: "", timestamp: undefined },
-            user: friendUserData || { username: "Unknown" },
-          };
+          if (friendUserData && lastMessageData?.text) {
+            setChats((prevChats) => {
+              const filtered = prevChats.filter((c) => c.uid !== friendUid);
+              return [
+                ...filtered,
+                {
+                  uid: friendUid,
+                  chatId,
+                  lastMessage: lastMessageData,
+                  user: friendUserData,
+                },
+              ].sort(
+                (a, b) =>
+                  (b.lastMessage.timestamp?.seconds || 0) -
+                  (a.lastMessage.timestamp?.seconds || 0)
+              );
+            });
+          }
+
+          // Only set loading to false on the first snapshot
+          if (!hasSetLoading) {
+            hasSetLoading = true;
+            setLoading(false);
+          }
         });
 
-        const results = await Promise.all(chatPromises);
+        unsubscribeFns.push(unsubscribe);
+      });
+    } catch (err) {
+      console.error("Error loading real-time recent chats:", err);
+      setLoading(false);
+    }
+  };
 
-        const filteredResults = results.filter(
-          (chat) => chat.user && chat.lastMessage.text
-        );
+  fetchLiveChats();
 
-        setChats(
-          filteredResults.sort(
-            (a, b) =>
-              (b.lastMessage.timestamp?.seconds || 0) -
-              (a.lastMessage.timestamp?.seconds || 0)
-          )
-        );
-      } catch (error) {
-        console.error("Error loading recent chats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  return () => {
+    unsubscribeFns.forEach((unsub) => unsub());
+  };
+}, [userData?.uid]);
 
-    fetchRecentChats();
-  }, [userData?.uid]);
+
 
   if (loading) return <InlineLoader />;
   if (!chats.length)
