@@ -1,7 +1,7 @@
 import { doc, getDoc, writeBatch, Timestamp } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
-export async function acceptFriendRequest(reqId:string) {
+export async function acceptFriendRequest(reqId: string) {
   const reqRef = doc(db, "friend_requests", reqId);
   const reqSnap = await getDoc(reqRef);
 

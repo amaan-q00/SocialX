@@ -28,8 +28,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { removeFriend } from "@/lib/removeFriend";
+import InlineLoader from "@/components/InlineLoader";
 
 const PAGE_SIZE = 10;
 
@@ -249,10 +250,10 @@ export default function ChatPage() {
   if (!currentUid || !otherUid) return <p>Loading...</p>;
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-900 text-white">
-      <Toaster position="top-center" />
+    <div className="flex flex-col h-[100dvh] bg-zinc-900 text-white safe-area">
+     
       {/* Header */}
-      <div className="flex items-center p-4 border-b border-zinc-700">
+      <div className="flex-shrink-0 flex items-center p-4 border-b border-zinc-700 safe-area-top">
         <Link href="/dashboard" className="mr-4">
           <ArrowLeft />
         </Link>
@@ -286,9 +287,9 @@ export default function ChatPage() {
       {/* Messages */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 flex flex-col space-y-2 space-y-reverse"
+        className="flex-1 overflow-y-auto p-4 flex flex-col space-y-2 space-y-reverse pb-0"
       >
-        {loadingInitial && <div className="text-center text-zinc-500">Loading chat...</div>}
+        {loadingInitial && <InlineLoader/>}
         {loadingMore && <div className="text-sm text-zinc-400 self-center">Loading more...</div>}
         {messages.map((msg) => {
           const isMe = msg.senderId === currentUid;
@@ -309,11 +310,11 @@ export default function ChatPage() {
             </div>
           );
         })}
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="h-[calc(env(safe-area-inset-bottom)+3rem)]"/>
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t border-zinc-700 flex items-center gap-2">
+      <div className="sticky bottom-0 p-3 border-t border-zinc-700 flex items-center gap-2 bg-zinc-900 safe-area-bottom">
         <input
           type="text"
           value={input}
@@ -322,14 +323,14 @@ export default function ChatPage() {
           placeholder="Type your message..."
           className="flex-1 bg-zinc-800 px-4 py-2 rounded-full text-white placeholder:text-zinc-500"
         />
-        <button onClick={handleSend} disabled={sending}>
+        <button onClick={handleSend} disabled={sending} className="flex-shrink-0">
           {sending ? <Loader2 className="animate-spin w-5 h-5 text-brand" /> : <Send className="text-brand" />}
         </button>
       </div>
 
       {/* Profile Modal */}
       {showProfile && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 safe-area">
           <div ref={modalRef} className="bg-zinc-800 p-4 rounded-xl w-full max-w-md relative">
             {otherUser ? (
               <>
