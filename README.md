@@ -22,7 +22,7 @@ SocialX is a full-stack social media platform where users can upload and share d
 - ✅ Upload & Display Media (Images, Videos, Audio)  
 - ✅ Disappearing Media Logic  
 - ✅ Responsive Mobile/Desktop UI  
-- ⏳ Friend Management *(Coming Soon)*  
+- ✅ Friend Management 
 - ⏳ One-on-One Chat with Disappearing Messages *(Coming Soon)*  
 - ⏳ Superuser Mode: View Expired Content *(Planned)*  
 - ⏳ Activity Logging *(Planned)*  
@@ -90,7 +90,7 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 - [x] Media Upload and Display  
 - [x] Disappearing Media Logic  
-- [ ] Friend Management System  
+- [x] Friend Management System  
 - [ ] Private Chat with Expiry  
 - [ ] Superuser & Moderation Tools  
 - [ ] UI/UX Polish & Final Deployment  
